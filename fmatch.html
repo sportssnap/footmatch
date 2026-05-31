@@ -5,179 +5,367 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sports Matches</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-
-        /* FIX 1: prevent any child from making body scroll horizontally */
-        html, body { overflow-x: hidden; max-width: 100%; }
-
-        body { padding: 10px; background-color: #f5f5f5; }
-
+        /* Global reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            padding: 10px;
+            background-color: #f5f5f5;
+        }
+        /* Scroll notice */
         .scroll-notice {
-            text-align: center; font-size: 16px; font-weight: bold;
-            padding: 8px; background-color: #FF0000; color: #fff;
-            border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,.2);
-            opacity: 0.9; margin-bottom: 10px;
-            animation: fadeInUp .5s ease-out forwards, bounce 1s infinite alternate;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 8px;
+            background-color: #FF0000;
+            color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            opacity: 0.9;
+            transform: translateY(-15px);
+            animation: fadeInUp 0.5s ease-out forwards, bounce 1s infinite alternate;
+            position: relative;
+            margin-bottom: 10px;
         }
-        @keyframes fadeInUp { from{opacity:0;transform:translateY(15px)} to{opacity:.9;transform:translateY(0)} }
-        @keyframes bounce   { from{transform:translateY(0)} to{transform:translateY(8px)} }
-
+        .hand-icon {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 0.9; transform: translateY(0); }
+        }
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(8px); }
+        }
+        /* League box */
         .box {
-            display: flex; align-items: center; justify-content: center;
-            border: 2px solid red; padding: 1px 10px; width: 100%;
-            border-radius: 8px; font-size: 10px; font-weight: bold;
-            background-color: #f9f9f9; margin: 15px 0;
-            overflow: hidden; /* FIX 2: clip any overlong text */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid red;
+            padding: 1px 10px;
+            width: 100%;
+            box-sizing: border-box;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            font-weight: bold;
+            background-color: #f9f9f9;
+            margin: 15px 0;
         }
-        .box img { width: 40px; height: 40px; margin-right: 10px; flex-shrink: 0; }
-        .box span { color: #000; }
-
+        .box img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        .box span {
+            color: #000;
+        }
+        /* Match notice */
         .notice {
-            display: flex; align-items: center;
-            background: white; border-radius: 10px; border: 2px solid;
-            color: black; height: 50px;
-            /* FIX 3: reduced side margins — the original 10px on each side
-               added 20px of extra width that caused horizontal scroll */
-            margin: 8px 4px;
-            overflow: hidden; padding: 0 8px;
-            transition: background-color .3s ease; font-size: 12px;
+            align-items: center;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid;
+            box-sizing: border-box;
+            color: black;
+            display: flex;
+            height: 50px;
+            justify-content: left;
+            list-style: none;
+            margin: 10px;
+            outline: none;
+            overflow: hidden;
+            padding: 0 10px;
+            text-align: left;
+            transition: background-color 0.3s ease;
+            font-size: 12px;
         }
-        .notice b { display: flex; align-items: center; height: 100%; min-width: 0; }
-        .notice img { height: 30px; width: 30px; margin: 0 5px; flex-shrink: 0; }
-        .notice span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .notice:hover { background-color: lightgray; }
-
+        .notice b {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+        .notice img {
+            height: 30px;
+            margin-bottom: 0;
+            margin-left: 5px;
+            margin-right: 5px;
+            width: 30px;
+        }
+        .notice:hover {
+            background-color: lightgray;
+        }
         .timer {
             margin-left: auto;
-            padding-left: 8px; padding-right: 4px;
-            font-weight: bold; color: black; font-size: 12px;
-            /* FIX 4: never wrap — wrapping pushes the box taller and wider */
-            white-space: nowrap;
-            flex-shrink: 0;
+            padding-left: 10px;
+            padding-right: 5px;
+            font-weight: bold;
+            color: black;
+            font-size: 12px;
         }
-        .blinking { animation: blinkingText 1s infinite; color: red; }
-        @keyframes blinkingText { 0%{opacity:1} 50%{opacity:0} 100%{opacity:1} }
-        a { color: black; text-decoration: none; }
-
-        /* FIX 5: mobile breakpoint — compress further on small screens */
-        @media (max-width: 480px) {
-            body { padding: 6px; }
-            .scroll-notice { font-size: 13px; padding: 6px 8px; }
-            .box { font-size: 9px; padding: 1px 6px; margin: 8px 0; }
-            .box img { width: 26px; height: 26px; margin-right: 6px; }
-            .notice { margin: 6px 2px; padding: 0 6px; height: 46px; font-size: 11px; }
-            .notice img { width: 22px; height: 22px; margin: 0 3px; }
-            .timer { font-size: 10px; padding-left: 4px; padding-right: 2px; }
+        .blinking {
+            animation: blinkingText 1s infinite;
+            color: red;
         }
-        
-        
+        @keyframes blinkingText {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        a {
+            color: black;
+            text-decoration: none;
+        }
     </style>
+    
+    <style>
+    .center-content {
+      display: inline-flex;
+      align-items: center;
+      color: inherit; /* Inherit text color */
+      background-color: #02ccfe; /* Default inner background color */
+      border-radius: 5px; /* Rounded corners for inner content */
+      padding: 10px; /* Padding for better spacing */
+      transition: background-color 0.3s; /* Smooth transition for inner background */
+    }
+    .center-content.active {
+      background-color: #FF6961; /* Active inner background color */
+    }
+      
+    .live-logo {
+    height: 25px; /* Adjust the height as needed */
+    width: 25px; /* Adjust the width as needed */
+    margin-right: 5px; /* Space between the logo and text */
+    vertical-align: middle; /* Align logo with text */
+    }
+    .live-icon {
+      margin-left: 5px;
+      vertical-align: middle;
+    }
+    .live-link {
+      color: white; /* White text color */
+      text-decoration: none; /* Remove underline */
+      font-weight: bold; /* Bold text */
+    }
+    .notice {
+      align-items: center; /* Center items vertically */
+      background: white;
+      border-radius: 10px; /* Rounded corners */
+      border: 2px solid;
+      box-sizing: border-box;
+      color: black;
+      display: flex;
+      height: 50px;
+      justify-content: left;
+      list-style: none;
+      margin: 10px; /* Margin around each notice box */
+      outline: none;
+      overflow: hidden;
+      padding: 0 10px; /* Padding for spacing */
+      text-align: left;
+      transition: background-color 0.3s ease;
+      font-size: 12px; /* Reduced text size */
+    }
+    .notice b {
+      display: flex;
+      align-items: center; /* Center items vertically inside the b tag */
+      height: 100%; /* Full height of parent */
+    }
+    .notice img {
+      height: 30px;
+      margin-bottom: 0;
+      margin-left: 5px;
+      margin-right: 5px;
+      width: 30px;
+    }
+    .notice:hover {
+      background-color: lightgray; /* Hover background color */
+    }
+    .timer {
+  margin-left: auto; /* Push timer to the right */
+  padding-left: 10px; /* Space between text and timer */
+  padding-right: 5px; /* Gap at the end of the timer text */
+  font-weight: bold; /* Bold timer text */
+  color: black; /* Default timer text color */
+  font-size: 12px; /* Reduced text size */
+}
+    .blinking {
+      animation: blinkingText 1s infinite;
+      color: red; /* Red blinking text */
+    }
+    @keyframes blinkingText {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    </style>
+    
     <script>
-        function updateMatchStatus() {
-            document.querySelectorAll('.notice').forEach(notice => {
-                const start = new Date(notice.getAttribute('data-start'));
-                const end   = new Date(notice.getAttribute('data-end'));
-                const now   = new Date();
-                const t     = notice.querySelector('.timer');
-                if (!t) return;
-                if (now < start) {
-                    t.innerText = formatTime(start - now);
-                    t.classList.remove('blinking');
-                } else if (now <= end) {
-                    t.innerText = 'Live Now';
-                    t.classList.add('blinking');
-                } else {
-                    t.innerText = 'Ended';
-                    t.classList.remove('blinking');
+     function updateMatchStatus() {
+            const notices = document.querySelectorAll('.notice');
+            notices.forEach(notice => {
+                const startTime = new Date(notice.getAttribute('data-start'));
+                const endTime = new Date(notice.getAttribute('data-end'));
+                const now = new Date();
+                const timerElem = notice.querySelector('.timer');
+               
+                if (timerElem) {
+                    if (now < startTime) {
+                        timerElem.innerText = formatTimeDifference(startTime - now);
+                        timerElem.classList.remove('blinking');
+                    } else if (now >= startTime && now <= endTime) {
+                        timerElem.innerText = 'Live Now';
+                        timerElem.classList.add('blinking');
+                    } else {
+                        timerElem.innerText = 'Match Ended';
+                        timerElem.classList.remove('blinking');
+                    }
                 }
             });
             setTimeout(updateMatchStatus, 1000);
         }
-        function formatTime(ms) {
-            const s = Math.floor(ms/1000), m = Math.floor(s/60), h = Math.floor(m/60);
-            return h+'h '+(m%60)+'m '+(s%60)+'s';
+        function formatTimeDifference(milliseconds) {
+            const seconds = Math.floor(milliseconds / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            return `${hours} hr ${minutes % 60} min ${seconds % 60} sec`;
         }
-        document.addEventListener('DOMContentLoaded', updateMatchStatus);
-    </script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateMatchStatus();
+        });
+</script>
 </head>
 <body>
-    <div class="scroll-notice">Scroll Down For More Matches!!</div>
-
+    <div class="scroll-notice">
+        Scroll Down For More Matches!!
+        <!--div class="hand-icon">👇👇</div-->
+    </div>
+   
+   
+   
+    <!-- Champions League Section -->
     <div class="box">
-        <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/42.png" alt="UCL">
+        <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/42.png" alt="Champions League Logo">
         <span>CHAMPIONS LEAGUE - SCHEDULE</span>
     </div>
     <a href="https://sportssnaplive.neocities.org/live?sportssnap=psg">
-        <div class="notice" data-start="2025-10-02T00:45:00+05:45" data-end="2025-10-02T02:45:00+05:45">
-            <b><img src="https://images.fotmob.com/image_resources/logo/leaguelogo/42.png" alt="UCL"><span>Barcelona vs PSG</span></b>
+        <div class="notice" data-end="2025-10-02T02:45:00+05:45" data-start="2025-10-02T00:45:00+05:45">
+            <b>
+                <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/42.png" alt="Champions League Logo">
+                <span>Barcelona vs PSG</span>
+            </b>
             <div class="timer"></div>
         </div>
     </a>
-
+   
+   
+    <!-- Asian Cup Qualification Section -->
     <div class="box">
-        <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/10609.png" alt="Asian Cup">
+        <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/10609.png" alt="Premier League Logo">
         <span>Asian Cup Qualification - SCHEDULE</span>
     </div>
     <a href="https://sportssnaplive.neocities.org/live?sportssnap=">
-        <div class="notice" data-start="2025-11-18T16:45:00+05:45" data-end="2025-11-18T18:45:00+05:45">
-            <b><img src="https://images.fotmob.com/image_resources/logo/leaguelogo/10609.png" alt="Asian Cup"><span>Nepal vs Malaysia</span></b>
+        <div class="notice" data-end="2025-11-18T18:45:00+05:45" data-start="2025-11-18T16:45:00+05:45">
+            <b>
+                <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/10609.png" alt="Premier League Logo">
+                <span>Nepal vs Malaysia</span>
+            </b>
             <div class="timer"></div>
         </div>
     </a>
-
+   
+   
+   
+    <!-- Premier League Section -->
     <div class="box">
-        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhWUOSoPAl0UAc96mClxUPxg6FUXdzQymSsViCLDmW8_eLR_jQu3RDvy-3Sqq8-91q5_uStEJxQ05O1S2sG0YzM2-4nsa98JFszi3c_HCFbok0Hq_F3yytUgiwA3b-boOOguPBu7tDp4zmM/s0/Premier-League_.webp" alt="EPL">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhWUOSoPAl0UAc96mClxUPxg6FUXdzQymSsViCLDmW8_eLR_jQu3RDvy-3Sqq8-91q5_uStEJxQ05O1S2sG0YzM2-4nsa98JFszi3c_HCFbok0Hq_F3yytUgiwA3b-boOOguPBu7tDp4zmM/s0/Premier-League_.webp" alt="Premier League Logo">
         <span>PREMIER LEAGUE - SCHEDULE</span>
     </div>
+   
+   
     <a href="https://sportssnaplive.neocities.org/live?sportssnap=">
-        <div class="notice" data-start="2025-10-04T22:15:00+05:45" data-end="2025-10-05T00:15:00+05:45">
-            <b><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhWUOSoPAl0UAc96mClxUPxg6FUXdzQymSsViCLDmW8_eLR_jQu3RDvy-3Sqq8-91q5_uStEJxQ05O1S2sG0YzM2-4nsa98JFszi3c_HCFbok0Hq_F3yytUgiwA3b-boOOguPBu7tDp4zmM/s0/Premier-League_.webp" alt="EPL"><span>Chelsea vs Liverpool</span></b>
+        <div class="notice" data-end="2025-10-05T00:15:00+05:45" data-start="2025-10-04T22:15:00+05:45">
+            <b>
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhWUOSoPAl0UAc96mClxUPxg6FUXdzQymSsViCLDmW8_eLR_jQu3RDvy-3Sqq8-91q5_uStEJxQ05O1S2sG0YzM2-4nsa98JFszi3c_HCFbok0Hq_F3yytUgiwA3b-boOOguPBu7tDp4zmM/s0/Premier-League_.webp" alt="Premier League Logo">
+                <span>Chelsea vs Liverpool</span>
+            </b>
             <div class="timer"></div>
         </div>
     </a>
-
+    <!-- La Liga Section -->
     <div class="box">
-        <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/dark/87.png" alt="LaLiga">
+        <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/dark/87.png" alt="La Liga Logo">
         <span>LALIGA - SCHEDULE</span>
     </div>
     <a href="https://sportssnaplive.neocities.org/live?sportssnap=">
-        <div class="notice" data-start="2025-10-04T20:00:00+05:45" data-end="2025-10-04T22:00:00+05:45">
-            <b><img src="https://images.fotmob.com/image_resources/logo/leaguelogo/dark/87.png" alt="LaLiga"><span>Girona vs Valencia</span></b>
+        <div class="notice" data-end="2025-10-04T22:00:00+05:45" data-start="2025-10-04T20:00:00+05:45">
+            <b>
+                <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/dark/87.png" alt="La Liga Logo">
+                <span>Girona vs Valencia</span>
+            </b>
             <div class="timer"></div>
         </div>
     </a>
-
+   
+   
+    <!-- Serie A Section -->
     <div class="box">
-        <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/dark/55.png" alt="Serie A">
+        <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/dark/55.png" alt="Serie A Logo">
         <span>Serie A - SCHEDULE</span>
     </div>
     <a href="https://sportssnaplive.neocities.org/live?sportssnap=">
-        <div class="notice" data-start="2025-10-04T21:45:00+05:45" data-end="2025-10-04T23:45:00+05:45">
-            <b><img src="https://images.fotmob.com/image_resources/logo/leaguelogo/dark/55.png" alt="Serie A"><span>Inter vs Cremonese</span></b>
+        <div class="notice" data-end="2025-10-04T23:45:00+05:45" data-start="2025-10-04T21:45:00+05:45">
+            <b>
+                <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/dark/55.png" alt="Serie A Logo">
+                <span>Inter vs Cremonese</span>
+            </b>
             <div class="timer"></div>
         </div>
     </a>
-
+   
+   
+   
+  <!-- Bundesliga Section -->
     <div class="box">
-        <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/dark/54.png" alt="Bundesliga">
+        <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/dark/54.png" alt="Bundesliga Logo">
         <span>Bundesliga - SCHEDULE</span>
     </div>
     <a href="https://sportssnaplive.neocities.org/live?sportssnap=">
-        <div class="notice" data-start="2025-10-04T19:15:00+05:45" data-end="2025-10-04T21:15:00+05:45">
-            <b><img src="https://images.fotmob.com/image_resources/logo/leaguelogo/dark/54.png" alt="Bundesliga"><span>Dortmund vs RB Leipzig</span></b>
+        <div class="notice" data-end="2025-10-04T21:15:00+05:45" data-start="2025-10-04T19:15:00+05:45">
+            <b>
+                <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/dark/54.png" alt="Bundesliga Logo">
+                <span>Dortmund vs RB Leipzig</span>
+            </b>
             <div class="timer"></div>
         </div>
     </a>
-
+   
+   
+  
+   
+   
+    <!-- Saudi Pro League / AFC Champions League Two Section -->
     <div class="box">
-        <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/dark/9469.png" alt="AFC CL2">
+        <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/dark/9469.png" alt="AFC Champions League Two Logo">
         <span>AFC Champions League Two - SCHEDULE</span>
     </div>
     <a href="https://sportssnaplive.neocities.org/live?sportssnap=nassr">
-        <div class="notice" data-start="2025-10-02T00:00:00+05:45" data-end="2025-10-02T02:00:00+05:45">
-            <b><img src="https://images.fotmob.com/image_resources/logo/leaguelogo/dark/9469.png" alt="AFC CL2"><span>Al Zawraa vs Al Nassr FC</span></b>
+        <div class="notice" data-end="2025-10-02T02:00:00+05:45" data-start="2025-10-02T00:00:00+05:45">
+            <b>
+                <img src="https://images.fotmob.com/image_resources/logo/leaguelogo/dark/9469.png" alt="AFC Champions League Two Logo">
+                <span>Al Zawraa vs Al Nassr FC</span>
+            </b>
             <div class="timer"></div>
         </div>
     </a>
+  
 </body>
 </html>
